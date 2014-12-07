@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/emicklei/hopwatch"
+
 	"github.com/codegangsta/cli"
 )
 
@@ -44,13 +46,20 @@ func runTests(c *cli.Context) {
 }
 
 func listTests(c *cli.Context) {
-	if c.Bool("suites") {
-		fmt.Println("Listing all test suites for : ", c.Args().First())
-		for _, suite := range listSuites(c.Args().First()) {
-			fmt.Println(suite)
+	hopwatch.Display("suites", c.Bool("suites") || c.Bool("s")).Break()
+	if c.Bool("suites") || c.Bool("s") {
+		fmt.Printf("Listing all test suites for : %s\n\n", c.Args().First())
+		for _, suite := range findTestSuites(c.Args().First()) {
+			fmt.Printf(" %s\n", suite.Name)
 		}
 	} else {
-		fmt.Println("List of all test cases : ", c.Args().First())
+		fmt.Printf("List of all test cases : %s\n\n", c.Args().First())
+		for _, suite := range findTestSuites(c.Args().First()) {
+			fmt.Printf("[TS] %s\n", suite.Name)
+			for _, test := range suite.Tests {
+				fmt.Printf("\t[TC] %s\n", test.Name)
+			}
+		}
 	}
 }
 
